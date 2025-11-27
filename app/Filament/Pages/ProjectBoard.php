@@ -310,7 +310,7 @@ class ProjectBoard extends Page
                     'project_id' => $this->selectedProject?->id,
                     'ticket_status_id' => $this->selectedProject?->ticketStatuses->first()?->id,
                 ]))
-                ->openUrlInNewTab(),
+                ->openUrlInNewTab(false),
 
             Action::make('refresh_board')
                 ->label('Refresh Board')

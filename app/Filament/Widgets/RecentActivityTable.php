@@ -125,7 +125,7 @@ class RecentActivityTable extends BaseWidget
                     ->url(fn (TicketHistory $record): string => 
                         route('filament.admin.resources.tickets.view', $record->ticket)
                     )
-                    ->openUrlInNewTab()
+                    ->openUrlInNewTab(false)
             ])
             ->recordUrl(fn (TicketHistory $record) => 
                 route('filament.admin.resources.tickets.view', $record->ticket)

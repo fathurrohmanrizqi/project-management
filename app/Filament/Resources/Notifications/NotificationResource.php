@@ -101,7 +101,7 @@ class NotificationResource extends Resource
                     ->url(fn (Notification $record) => 
                         route('filament.admin.resources.tickets.view', ['record' => $record->data['ticket_id']])
                     )
-                    ->openUrlInNewTab(),
+                    ->openUrlInNewTab(false),
             ])
             ->headerActions([
                 Action::make('markAllAsRead')
