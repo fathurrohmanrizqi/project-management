@@ -30,31 +30,38 @@
 
                                     @if(auth()->user()->hasRole(['super_admin']) || $comment->user_id === auth()->id())
                                         <div class="flex gap-x-1">
+
                                             <!-- Edit Button -->
-                                            <button type="button"
-                                                wire:click="mountAction('editComment', { commentId: {{ $comment->id }} })"
-                                                class="p-1 text-gray-400 hover:text-blue-500 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                title="Edit comment">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                            </button>
+                                            <x-filament::icon-button
+                                                icon="heroicon-o-pencil-square"
+                                                color="gray"
+                                                size="sm"
+                                                :tooltip="$deleteAction->getLabel()"
+                                                :action="$this->editCommentAction"
+                                                :arguments="['commentId' => $comment->id]"
+                                            />
 
                                             <!-- Delete Button -->
-                                            <button type="button"
-                                                wire:click="mountAction('deleteComment', { commentId: {{ $comment->id }} })"
-                                                class="p-1 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                title="Delete comment">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
+                                            <x-filament::icon-button
+                                                icon="heroicon-o-trash"
+                                                color="danger"
+                                                size="sm"
+                                                tooltip="Delete comment"
+                                                :action="$this->deleteCommentAction"
+                                                :arguments="['commentId' => $comment->id]"
+                                            />
+
                                         </div>
                                     @endif
+
+
+                                    {{-- @if(auth()->user()->hasRole(['super_admin']) || $comment->user_id === auth()->id())
+                                        <div class="flex gap-x-1 items-center">
+                                            {{ ($this->editCommentAction)(['commentId' => $comment->id]) }}
+
+                                            {{ ($this->deleteCommentAction)(['commentId' => $comment->id]) }}
+                                        </div>
+                                    @endif --}}
                                 </div>
                             </div>
                             <div class="prose prose-sm dark:prose-invert max-w-none">

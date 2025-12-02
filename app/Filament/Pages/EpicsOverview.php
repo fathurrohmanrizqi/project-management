@@ -8,6 +8,11 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
+use Filament\Actions\CreateAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 
 class EpicsOverview extends Page
 {
@@ -180,6 +185,39 @@ class EpicsOverview extends Page
         }
 
         return $names[0] . ', ' . $names[1] . ' +' . (count($names) - 2) . ' more';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            CreateAction::make('create_epic')
+                ->label('New Epic')
+                ->model(Epic::class) // Memberitahu Filament model yang digunakan
+                ->form([
+                    TextInput::make('name')
+                        ->required()
+                        ->maxLength(255),
+                    
+                    // Dropdown Project (Otomatis terisi jika filter project aktif)
+                    Select::make('project_id')
+                        ->label('Project')
+                        ->options($this->availableProjects->pluck('name', 'id'))
+                        ->default($this->selectedProjectId)
+                        ->searchable()
+                        ->required(),
+
+                    DatePicker::make('start_date'),
+                    
+                    DatePicker::make('end_date'),
+
+                    Textarea::make('description')
+                        ->columnSpanFull(),
+                ])
+                ->after(function () {
+                    // Refresh data setelah Epic baru dibuat
+                    $this->refreshEpics(); 
+                }),
+        ];
     }
 
     #[On('epic-created')]

@@ -19,9 +19,16 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 
-class ViewTicket extends ViewRecord
+class ViewTicket extends ViewRecord implements HasActions, HasForms
 {
+    use InteractsWithActions;
+    use InteractsWithForms;
+
     protected static string $resource = TicketResource::class;
 
     public ?int $editingCommentId = null;
@@ -29,6 +36,10 @@ class ViewTicket extends ViewRecord
     public function editCommentAction(): Action
     {
         return Action::make('editComment')
+            ->icon('heroicon-o-pencil-square') // Icon bawaan heroicon
+            ->color('gray') // Warna abu-abu (sesuai class text-gray-400 Anda)
+            ->iconButton() // <--- PENTING: Menjadikannya tombol icon saja
+            ->tooltip('Edit comment')
             ->form([
                 Hidden::make('comment_id'),
                 RichEditor::make('comment')
@@ -95,6 +106,7 @@ class ViewTicket extends ViewRecord
             ->modalSubmitActionLabel('Yes, delete it')
             ->color('danger')
             ->icon('heroicon-o-trash')
+            ->iconButton()
             ->action(function (array $arguments): void {
                 $comment = TicketComment::find($arguments['commentId']);
 
