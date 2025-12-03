@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "echo 'Build skipped by user'",
         "dev": "vite"
     },
     "devDependencies": {
