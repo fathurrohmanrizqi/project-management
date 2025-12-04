@@ -10,6 +10,7 @@ use Filament\Pages\BasePage as Page;
 use Filament\Resources\Resource;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL; // <--- 1. WAJIB DITAMBAHKAN
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +27,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // <--- 2. LOGIKA FIX TAMPILAN RUSAK (Mixed Content)
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         Livewire::component('edit-comment-modal', EditCommentModal::class);
+        
         FilamentShield::buildPermissionKeyUsing(
             function (string $entity, string $affix, string $subject, string $case, string $separator) {
                 return match(true) {
