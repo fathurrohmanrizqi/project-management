@@ -19,21 +19,21 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
 
-# Copy seluruh project
+# Copy seluruh project (termasuk config vite)
 COPY . .
 
 # [PENTING] Copy folder vendor dari Stage 1 agar Vite bisa membaca file Filament
 COPY --from=deps /app/vendor ./vendor
 
-# Sekarang build aman karena folder vendor sudah ada
+# Build assets
 RUN npm run build
 
 # -----------------------------
-# Stage 3: Laravel (PHP 8.3) - Final Image
+# Stage 3: Laravel (Apache) - Production Ready
 # -----------------------------
-FROM php:8.3-fpm AS app
+FROM php:8.3-apache AS app
 
-# Install dependencies sistem
+# 1. Install System Dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
@@ -48,25 +48,26 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql intl zip gd opcache
 
-# Config Apache/PHP (Optional, sesuaikan kebutuhan production)
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# 2. Config Apache DocumentRoot ke folder /public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+# 3. Aktifkan mod_rewrite (Wajib untuk Laravel)
+RUN a2enmod rewrite
+
+# 4. Copy Dependencies
 WORKDIR /var/www/html
-
-# Copy project files
 COPY . .
-
-# Copy vendor dari Stage 1 (Deps)
 COPY --from=deps /app/vendor ./vendor
-
-# Copy hasil build frontend dari Stage 2 (Frontend)
 COPY --from=frontend /app/public/build ./public/build
 
-# Set permissions
+# 5. Permission (User default Apache adalah www-data)
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expose port
-EXPOSE 8000
+# 6. Expose Port (Apache default 80)
+EXPOSE 80
 
-# Jalankan server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# 7. Start Apache (Default CMD dari image php:apache sudah cukup)
+# Kita tambahkan skrip init untuk caching saat container jalan
+CMD ["bash", "-c", "php artisan config:cache && php artisan route:cache && php artisan view:cache && apache2-foreground"]
