@@ -5,6 +5,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
+    curl \ 
+    gnupg \
     libicu-dev \
     libzip-dev \
     libpng-dev \
@@ -24,6 +26,10 @@ COPY . .
 
 # Install PHP dependencies
 RUN composer install --no-interaction --optimize-autoloader --no-dev
+
+# Install Node.js (tambahkan ini sebelum npm install)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
 
 # Build Vite
 RUN npm install && npm run build
