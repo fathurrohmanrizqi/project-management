@@ -67,7 +67,3 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # 6. Expose Port (Apache default menggunakan port 80)
 EXPOSE 80
-
-# 7. Start Apache
-# Kita jalankan cache config dulu, lalu jalankan apache di foreground
-CMD ["bash", "-c", "php artisan config:cache && php artisan route:cache && php artisan view:cache && apache2-foreground"]
