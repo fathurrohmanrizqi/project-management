@@ -1,41 +1,51 @@
-FROM php:8.3-fpm
+# -----------------------------
+# Stage 1: Build Frontend (Node)
+# -----------------------------
+FROM node:20 AS frontend
 
-# Install system dependencies
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+
+# -----------------------------
+# Stage 2: Laravel (PHP 8.3)
+# -----------------------------
+FROM php:8.3-fpm AS app
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    zip \
-    unzip \
-    git \
-    curl \ 
-    gnupg \
-    libicu-dev \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
     libpq-dev \
-    && docker-php-ext-install intl zip gd pdo pdo_mysql pdo_pgsql
+    libzip-dev \
+    libicu-dev \
+    unzip \
+    zip \
+    git \
+    && docker-php-ext-install pdo pdo_pgsql intl zip
 
-# Install Composer
+# Install composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Copy project files
+# Copy Laravel project
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Copy built assets from Node stage
+COPY --from=frontend /app/public/build ./public/build
 
-# Install Node.js (tambahkan ini sebelum npm install)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs
+# Install PHP deps
+RUN composer install --no-dev --optimize-autoloader
 
-# Build Vite
-RUN npm install && npm run build
+# Laravel optimize
+RUN php artisan key:generate --force || true
+RUN php artisan config:cache
+RUN php artisan route:cache
 
-# Expose port
-EXPOSE 8080
+EXPOSE 8000
 
-# Start command
-CMD php artisan serve --host=0.0.0.0 --port=8080
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
