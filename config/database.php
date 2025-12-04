@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Str;
-use PDO;
 
 return [
 
@@ -97,7 +96,7 @@ return [
             'search_path' => 'public',
             'sslmode' => 'prefer',
             'options' => [
-                PDO::ATTR_EMULATE_PREPARES => true,
+                \PDO::ATTR_EMULATE_PREPARES => true,
             ],
         ],
 
