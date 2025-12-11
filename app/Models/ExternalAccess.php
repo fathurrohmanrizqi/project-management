@@ -25,6 +25,7 @@ class ExternalAccess extends Model
     protected $casts = [
         'last_accessed_at' => 'datetime',
         'is_active' => 'boolean',
+        'migration_generated' => 'boolean',
     ];
 
     public function project(): BelongsTo
